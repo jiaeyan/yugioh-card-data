@@ -26,6 +26,7 @@ from bs4 import BeautifulSoup
 def collect_data(digit_list):
     num = 0
     l = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    l = set(list(l))
     print('正在收集卡片...')
     with open('valid_urls.txt', 'w') as f:
         for digit in digit_list:
@@ -70,7 +71,7 @@ def generate_card_file(url, rand):
         return True
 
     except:
-        print('尝试 {} 失败，更换新随机数...'.format(rand))
+        print('尝试 {} 失败，更换随机数...'.format(rand))
         return False
 
 # 未收录灵摆刻度
@@ -101,22 +102,22 @@ def write_file(info):
         else:
             card['LINK'] = int(info[info.index('LINK') + 1])
 
-    with open('cards/' + code + '.json', 'w') as f:
+    with open('scrape_cards/' + code + '.json', 'w') as f:
         json.dump(card, f, sort_keys=True)
 
 
-d = {2:True, 1:{'g':[1,2,3], 'c':('你好', '喜欢')}}
-with open('test.json', 'w') as f:
-    json.dump(d, f, sort_keys=True)
-
-with open('test.json') as data_file:
-    data = json.load(data_file)
-    print(list(data.keys()))
-
-
-# collect_data([5, 6])
-# generate_card_file(url8)
+# d = {2:True, 1:{'g':[1,2,3], 'c':('你好', '喜欢')}}
+# with open('test.json', 'w') as f:
+#     json.dump(d, f, sort_keys=True)
 #
+# with open('test.json') as data_file:
+#     data = json.load(data_file)
+#     print(list(data.keys()))
+
+
+collect_data([6])
+# generate_card_file(url8)
+
 # with open('cards/74997493.json') as data_file:
 #     data = json.load(data_file)
 #     print(data)
