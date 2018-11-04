@@ -2,13 +2,13 @@ import json
 import re
 
 from constants import *
-from info_decoder import Interpreter
+from cards.info_decoder import Interpreter
 
 # command line: sqlite3 card_data.cdb .dump > card_data.sql
 # id: [name, description, ot, alias, set, card_type, atk, def, level, race, atrr, effect_category]
 
 
-class YuGiOh(object):
+class CardCollector(object):
 
     def __init__(self):
         self.monster_database = self.init_monster_database()

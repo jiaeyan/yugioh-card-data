@@ -1,9 +1,9 @@
-from card_collector import YuGiOh
+from cards.card_collector import CardCollector
 
 
 def main():
-    yugioh = YuGiOh()
-    yugioh.collect_cards('source/card_data.sql', 'source/strings.conf')
+    yugioh = CardCollector()
+    yugioh.collect_cards('resources/card_data.sql', 'resources/strings.conf')
     yugioh.write_data()
 
 
