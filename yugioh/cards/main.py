@@ -19,7 +19,5 @@ if __name__ == '__main__':
     ygo_root_dir = args.ygo_root_dir
     sql_path = os.path.join(ygo_root_dir, 'cards.sql')
     conf_path = os.path.join(ygo_root_dir, 'strings.conf')
-    # sql_path = 'resources/cards.sql'
-    # conf_path = 'resources/strings.conf'
 
     main(sql_path, conf_path)
