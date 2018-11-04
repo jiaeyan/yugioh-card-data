@@ -8,7 +8,7 @@ __pycache__/
 .DS_Store
 
 # Data folder
-# card_data/
+data/
 source/
 resources/
 test.py
