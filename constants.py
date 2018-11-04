@@ -8,15 +8,16 @@ TRAP = '陷阱'
 # card info
 NAME = '卡名'
 ID = '密码'
-EFFECT = '效果'
+DESCRIPTION = '描述'
 OT = 'OT'
 ALIAS = '同名卡'
 SET = '字段'
-TYPE = '卡片种类'
+CARD_TYPE = '卡片种类'
 EFFECT_CATEGORY = '效果类型'
 
 # monster type
 NORMAL = '通常'
+EFFECT = '效果'
 FUSION = '融合'
 RITUAL = '仪式'
 SYNCHRO = '同调'
@@ -56,11 +57,10 @@ TOP_LEFT = '左上'
 TOP = '上'
 TOP_RIGHT = '右上'
 
-# spell type
+# spell and trap type, excludes NORMAL & RITUAL
 QUICKPLAY = '速攻'
 CONTINUOUS = '永续'
 EQUIP = '装备'
 FIELD = '场地'
-
-# trap type
 COUNTER = '反击'
+

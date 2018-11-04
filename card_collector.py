@@ -1,115 +1,129 @@
 import json
+import re
 from constants import *
-from source_loader import read_cdb
-from info_interpreter import convert_int_info, specialize_monster_info
+from info_decoder import Interpreter
 
 # command line: sqlite3 cards.cdb .dump > cards.sql
-# id: [name, effect, ot, alias, set, type, atk, def, level, race, atrr, category]
+# id: [name, description, ot, alias, set, card_type, atk, def, level, race, atrr, effect_category]
 
 
-def collect_cards(sql_f, conf_f):
-    cards = read_cdb(sql_f)
-    convert_int_info(conf_f, cards)
+class YuGiOh(object):
 
-    monster_db, spell_db, trap_db = db_init()
+    def __init__(self):
+        self.monster_database = self.init_monster_database()
+        self.spell_database = self.init_spell_database()
+        self.trap_database = self.init_trap_database()
 
-    for k, v in cards.items():
+    @staticmethod
+    def init_monster_database():
+        monster_database = {
+            NORMAL: [],
+            EFFECT: [],
+            RITUAL: [],
+            FUSION: [],
+            SYNCHRO: [],
+            XYZ: [],
+            PENDULUM: [],
+            LINK: [],
+        }
+        return monster_database
 
-        if v[-7].startswith(MONSTER):
-            add_monster_card(k, v, monster_db)
+    @staticmethod
+    def init_spell_database():
+        spell_database = {
+            NORMAL: [],
+            RITUAL: [],
+            QUICKPLAY: [],
+            EQUIP: [],
+            CONTINUOUS: [],
+            FIELD: [],
+        }
+        return spell_database
 
-        elif v[-7].startswith(SPELL):
-            add_spell_trap_card(k, v, spell_db)
+    @staticmethod
+    def init_trap_database():
+        trap_database = {
+            NORMAL: [],
+            COUNTER: [],
+            CONTINUOUS: [],
+        }
+        return trap_database
 
-        elif v[-7].startswith(TRAP):
-            add_spell_trap_card(k, v, trap_db)
+    def collect_cards(self, sql_f, conf_f):
+        card_database = self.read_card_database(sql_f)
+        decoder = Interpreter(conf_f)
+        card_templates = decoder.interpret_digits(card_database)
+        cards = decoder.make_cards(card_templates)
+        self.classify_cards(cards)
 
-    write_data(monster_db, spell_db, trap_db, json_=True, txt=True)
+    @staticmethod
+    def read_card_database(sql_f):
+        """ Parses a card sql database, gets the raw card info purely with digits.
+        """
+        count = 0
+        with open(sql_f, 'r') as f:
+            card_dict = {}
+            for line in f:
+                if line.startswith('INSERT'):
+                    values = re.findall(r'VALUES\((.+)\)', line.strip())[0]
+                    fields = values.split(',')
+                    if "''" in fields:
+                        # attaches card ID, name and description to the card dict
+                        count += 1
+                        card_dict[fields[0]] = list(map(lambda x: re.findall(r'\'(.+?)\'', x)[0], fields[1:3]))
+                    else:
+                        # attaches other raw card info in digit form to the card dict
+                        card_dict[fields[0]] += list(map(lambda x: int(x), fields[1:]))
+        print('Total number of cards:', count)
+        return card_dict
+
+    def classify_cards(self, cards):
+        for card in cards:
+            if card[CARD_TYPE].startswith(MONSTER):
+                self.add_monster_card(card)
+            else:
+                self.add_spell_trap_card(card)
+
+    def add_monster_card(self, card):
+        types = card[CARD_TYPE].split('|')
+        try:
+            sub_type = types[-1]
+            self.monster_database[sub_type].append(card)
+        except KeyError:
+            sub_type = types[1]
+            self.monster_database[sub_type].append(card)
+
+    def add_spell_trap_card(self, card):
+        types = card[CARD_TYPE].split('|')
+        sub_type = NORMAL if len(types) == 1 else types[-1]
+
+        if card[CARD_TYPE].startswith(SPELL):
+            self.spell_database[sub_type].append(card)
+        else:
+            self.trap_database[sub_type].append(card)
+
+    def write_data(self, json_=True, txt=True):
+        if json_:
+            for fn, db in [('cards/monster.json', self.monster_database),
+                           ('cards/spell.json', self.spell_database),
+                           ('cards/trap.json', self.trap_database)]:
+                with open(fn, 'w') as f:
+                    json.dump(db, f, indent=4, sort_keys=True)
+
+        if txt:
+            for fn, db in [('cards/monster.txt', self.monster_database),
+                           ('cards/spell.txt', self.spell_database),
+                           ('cards/trap.txt', self.trap_database)]:
+                with open(fn, 'w') as f:
+                    for sub_type, cards in db.items():
+                        f.write(sub_type + '\n')
+                        for card in cards:
+                            for var, val in card.items():
+                                f.write('\t' + var + ': ' + str(val) + '\n')
+                            f.write('\n')
 
 
-def db_init():
-    monster_db = {
-        NORMAL: {},
-        EFFECT: {},
-        RITUAL: {},
-        FUSION: {},
-        SYNCHRO: {},
-        XYZ: {},
-        PENDULUM: {},
-        LINK: {},
-    }
-
-    spell_db = {
-        NORMAL: {},
-        RITUAL: {},
-        QUICKPLAY: {},
-        EQUIP: {},
-        CONTINUOUS: {},
-        FIELD: {},
-    }
-
-    trap_db = {
-        NORMAL: {},
-        COUNTER: {},
-        CONTINUOUS: {},
-    }
-
-    return monster_db, spell_db, trap_db
 
 
-def add_monster_card(card_id, card_info, monster_db):
-    attack = '?' if card_info[-6] < 0 else card_info[-6]
-    defense = '?' if card_info[-5] < 0 else card_info[-5]
-
-    card = {
-        NAME: card_info[0],
-        ID: card_id,
-        EFFECT: card_info[1],
-        OT: card_info[2],
-        ALIAS: card_info[3],
-        SET: card_info[4],
-        TYPE: card_info[5],
-        ATTRIBUTE: card_info[-2],
-        RACE: card_info[-3],
-        EFFECT_CATEGORY: card_info[-1],
-        ATTACK: attack,
-    }
-
-    monster_type = specialize_monster_info(card, card_info, defense)
-    monster_db[monster_type][card_id] = card
-
-
-def add_spell_trap_card(card_id, card_info, cdb):
-    card = {
-        NAME: card_info[0],
-        ID: card_id,
-        EFFECT: card_info[1],
-        OT: card_info[2],
-        ALIAS: card_info[3],
-        SET: card_info[4],
-        TYPE: card_info[5],
-        EFFECT_CATEGORY: card_info[-1],
-    }
-
-    fields = card[TYPE].split('|')
-    card_type = NORMAL if len(fields) == 1 else fields[1]
-    cdb[card_type][card_id] = card
-
-
-def write_data(monster_db, spell_db, trap_db, json_=True, txt=True):
-    if json_:
-        for fn, db in [('cards/monster.json', monster_db), ('cards/spell.json', spell_db), ('cards/trap.json', trap_db)]:
-            with open(fn, 'w') as f:
-                json.dump(db, f, indent=4, sort_keys=True)
-
-    if txt:
-        for fn, db in [('cards/monster.txt', monster_db), ('cards/spell.txt', spell_db), ('cards/trap.txt', trap_db)]:
-            with open(fn, 'w') as f:
-                for k, v in db.items():
-                    f.write(k + '\n')
-                    for cid, cinfo in v.items():
-                        f.write('\t' + cid + '\n')
-                        for cname, cstr in cinfo.items():
-                            f.write('\t\t' + cname + ': ' + str(cstr) + '\n')
 
 

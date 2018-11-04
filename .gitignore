@@ -4,6 +4,10 @@ __pycache__/
 *.log
 *.pot
 
+# Data folder
+cards/
+source/
+
 # Distribution / packaging
 .Python
 build/
