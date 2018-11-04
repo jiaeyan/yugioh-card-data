@@ -4,13 +4,13 @@ from constants import *
 
 # parse integer info to card info
 def convert_int_info(conf_f, cards):
-    attributes, races, types, categories, setnames, ot = read_conf(conf_f)
+    attributes, races, card_types, effect_categories, setnames, ot = read_conf(conf_f)
     for k, v in cards.items():
-        v[-1] = get_card_info(v[-1], categories, info_type=EFFECT_CATEGORY)
+        v[-1] = get_card_info(v[-1], effect_categories, info_type=EFFECT_CATEGORY)
         v[-2] = get_card_info(v[-2], attributes, info_type=ATTRIBUTE)
         v[-3] = get_card_info(v[-3], races, info_type=RACE)
         v[-4] = get_level(v[-4])
-        v[-7] = get_card_info(v[-7], types, info_type=TYPE)
+        v[-7] = get_card_info(v[-7], card_types, info_type=CARD_TYPE)
         v[-8] = get_setname(v[-8], setnames)
         v[-9] = str(v[-9]) if v[-9] else ''
         v[-10] = ot[v[-10]]
@@ -31,7 +31,7 @@ def get_card_info(code, checklist, info_type=None):
     upto = 1
     if info_type == EFFECT_CATEGORY:
         upto = 0x100000000
-    elif info_type == TYPE:
+    elif info_type == CARD_TYPE:
         upto = 0x8000000
     elif info_type == RACE:
         upto = 0x2000000
@@ -58,8 +58,10 @@ def get_setname(setcode, setnames):
 
 
 def specialize_monster_info(card, card_info, defense):
+    # the order of the monster type list is reversed of the 'strings.conf' file, which means the foremost
+    # type determines the final type of the monster if multiple types applied
     for monster_type in [LINK, PENDULUM, XYZ, FUSION, SYNCHRO, RITUAL, EFFECT, NORMAL]:
-        if monster_type in card[TYPE]:
+        if monster_type in card[CARD_TYPE]:
             if monster_type == LINK:
                 card[DEFENSE] = '-'
                 card[LINK_NUMBER] = card_info[-4][0]
