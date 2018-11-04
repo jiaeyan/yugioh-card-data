@@ -5,8 +5,9 @@ __pycache__/
 *.pot
 
 # Data folder
-cards/
+card_data/
 source/
+test.py
 
 # Distribution / packaging
 .Python

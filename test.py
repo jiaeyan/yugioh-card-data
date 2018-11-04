@@ -4,7 +4,7 @@
 #
 #
 # def check_loader_interpreter(sql_f, conf_f):
-#     cards = read_cdb(sql_f)
+#     card_data = read_cdb(sql_f)
 #     attributes, races, types, categories, setnames, ot = read_conf(conf_f)
 #
 #     attr_codes = set()
@@ -13,7 +13,7 @@
 #     type_codes = set()
 #     cate_codes = set()
 #     set_codes = set()
-#     for v in cards.values():
+#     for v in card_data.values():
 #         cate_codes.add(v[-1])
 #         attr_codes.add(v[-2])
 #         race_codes.add(v[-3])
@@ -72,13 +72,13 @@
 #
 #
 # def check_result():
-#     with open('cards/monster.json') as f:
+#     with open('card_data/monster.json') as f:
 #         m = json.load(f)
 #
-#     with open('cards/spell.json') as f:
+#     with open('card_data/spell.json') as f:
 #         s = json.load(f)
 #
-#     with open('cards/trap.json') as f:
+#     with open('card_data/trap.json') as f:
 #         t = json.load(f)
 #
 #     c = sum([len(v) for d in [m, s, t] for v in d.values()])
