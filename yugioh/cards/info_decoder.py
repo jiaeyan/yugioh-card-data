@@ -1,7 +1,7 @@
 import re
 
-from cards.card import CardTemplate
-from constants import *
+from yugioh.cards.card import CardTemplate
+from yugioh.constants import *
 
 
 class Interpreter(object):

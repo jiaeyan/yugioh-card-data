@@ -1,4 +1,4 @@
-from constants import *
+from yugioh.constants import *
 
 
 class CardTemplate(object):

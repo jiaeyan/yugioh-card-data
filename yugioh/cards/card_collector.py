@@ -1,8 +1,8 @@
 import json
 import re
 
-from constants import *
-from cards.info_decoder import Interpreter
+from yugioh.constants import *
+from yugioh.cards.info_decoder import Interpreter
 
 # command line: sqlite3 card_data.cdb .dump > card_data.sql
 # id: [name, description, ot, alias, set, card_type, atk, def, level, race, atrr, effect_category]

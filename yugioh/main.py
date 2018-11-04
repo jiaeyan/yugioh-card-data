@@ -1,4 +1,4 @@
-from cards.card_collector import CardCollector
+from yugioh.cards.card_collector import CardCollector
 
 
 def main():
