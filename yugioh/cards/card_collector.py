@@ -4,7 +4,7 @@ import re
 from yugioh.constants import *
 from yugioh.cards.info_decoder import Interpreter
 
-# command line: sqlite3 card_data.cdb .dump > card_data.sql
+# command line: sqlite3 data.cdb .dump > data.sql
 # id: [name, description, ot, alias, set, card_type, atk, def, level, race, atrr, effect_category]
 
 
@@ -118,16 +118,16 @@ class CardCollector(object):
 
     def write_data(self, json_=True, txt=True):
         if json_:
-            for fn, db in [('card_data/monster.json', self.monster_database),
-                           ('card_data/spell.json', self.spell_database),
-                           ('card_data/trap.json', self.trap_database)]:
+            for fn, db in [('data/cards/monster.json', self.monster_database),
+                           ('data/cards/spell.json', self.spell_database),
+                           ('data/cards/trap.json', self.trap_database)]:
                 with open(fn, 'w') as f:
                     json.dump(db, f, indent=4, sort_keys=True)
 
         if txt:
-            for fn, db in [('card_data/monster.txt', self.monster_database),
-                           ('card_data/spell.txt', self.spell_database),
-                           ('card_data/trap.txt', self.trap_database)]:
+            for fn, db in [('data/cards/monster.txt', self.monster_database),
+                           ('data/cards/spell.txt', self.spell_database),
+                           ('data/cards/trap.txt', self.trap_database)]:
                 with open(fn, 'w') as f:
                     for sub_type, cards in db.items():
                         f.write(sub_type + '\n')
