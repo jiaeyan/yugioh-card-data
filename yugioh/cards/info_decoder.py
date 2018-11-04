@@ -5,6 +5,17 @@ from yugioh.constants import *
 
 
 class Interpreter(object):
+    """ This class is a decoder that mainly interprets the raw digits of card info in database to human
+        readable contents.
+
+        Attributes:
+            attributes: YuGiOh defined monster attributes.
+            races: YuGiOh defined monster races.
+            card_types: YuGiOh defined card type, e.g., monster, spell, trap, normal monster, ...
+            effect_categories: YGOPro ADS defined card effects.
+            set_names: YuGiOh defined sets that group cards with the same keywords in naming.
+            ot: an indicator suggesting if the card belongs to OCG or/and TCG.
+    """
 
     def __init__(self, conf_f):
         self.attributes = []
@@ -16,8 +27,7 @@ class Interpreter(object):
         self.read_conf(conf_f)
 
     def read_conf(self, conf_f):
-        """ Parses a strings.conf file to get card info.
-        """
+        """ Parses a strings.conf file to get predefined yugioh card term sets. """
         self.ot = {1: 'OCG', 2: 'TCG', 3: 'OCG|TCG'}
         with open(conf_f, 'r') as f:
             for line in f:
@@ -34,6 +44,9 @@ class Interpreter(object):
                     self.set_names[int(set_code, 16)] = set_name
 
     def interpret_digits(self, card_database):
+        """ Converts computer-readable digits of the raw card info from SQL database to human-readable
+            strings/integers.
+        """
         card_templates = []
         for card_id, info in card_database.items():
             info_container = {
@@ -57,6 +70,9 @@ class Interpreter(object):
 
     @staticmethod
     def make_cards(card_templates):
+        """ Different card types are made up of different info elements, each type has to be customized
+            into its own style before writing to disks.
+        """
         cards = [card_template.make_card() for card_template in card_templates]
         return cards
 

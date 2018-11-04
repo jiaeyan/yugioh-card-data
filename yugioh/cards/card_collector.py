@@ -9,6 +9,14 @@ from yugioh.cards.info_decoder import Interpreter
 
 
 class CardCollector(object):
+    """ This class provides functions to collect YuGiOh card data from YGOPro ADS, and also writing function to record
+        in disk.
+
+        Attributes:
+            monster_database: the card database of monsters in YuGiOh.
+            spell_database: the card database of spell in YuGiOh.
+            trap_database: the card database of trap in YuGiOh.
+    """
 
     def __init__(self):
         self.monster_database = self.init_monster_database()
@@ -51,6 +59,7 @@ class CardCollector(object):
         return trap_database
 
     def collect_cards(self, sql_f, conf_f):
+        """ The core function of this class, collects card data from YGOPro ADS SQL database. """
         card_database = self.read_card_database(sql_f)
         decoder = Interpreter(conf_f)
         card_templates = decoder.interpret_digits(card_database)
@@ -59,8 +68,7 @@ class CardCollector(object):
 
     @staticmethod
     def read_card_database(sql_f):
-        """ Parses a card sql database, gets the raw card info purely with digits.
-        """
+        """ Parses a card sql database, gets the raw card info purely with digits. """
         count = 0
         with open(sql_f, 'r') as f:
             card_dict = {}
@@ -79,6 +87,9 @@ class CardCollector(object):
         return card_dict
 
     def classify_cards(self, cards):
+        """ Given a list of card attribute dictionaries, classifies them into different types, e.g., monster, spell,
+            trap.
+        """
         for card in cards:
             if card[CARD_TYPE].startswith(MONSTER):
                 self.add_monster_card(card)
@@ -86,6 +97,7 @@ class CardCollector(object):
                 self.add_spell_trap_card(card)
 
     def add_monster_card(self, card):
+        """ Adds a monster card into corresponding sub type in the monster card database. """
         types = card[CARD_TYPE].split('|')
         try:
             sub_type = types[-1]
@@ -95,6 +107,7 @@ class CardCollector(object):
             self.monster_database[sub_type].append(card)
 
     def add_spell_trap_card(self, card):
+        """ Adds a spell/trap card into corresponding sub type in the spell/trap card database. """
         types = card[CARD_TYPE].split('|')
         sub_type = NORMAL if len(types) == 1 else types[-1]
 
