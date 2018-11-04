@@ -75,13 +75,13 @@ class CardCollector(object):
             for line in f:
                 if line.startswith('INSERT'):
                     values = re.findall(r'VALUES\((.+)\)', line.strip())[0]
-                    fields = values.split(',')
-                    if "''" in fields:
-                        # attaches card ID, name and description to the card dict
+                    if "''" in values:
                         count += 1
-                        card_dict[fields[0]] = list(map(lambda x: re.findall(r'\'(.+?)\'', x)[0], fields[1:3]))
+                        card_id, card_name, card_info = values.split(',', maxsplit=2)
+                        description = re.findall(r'\'(.+?)\'', card_info)[0]  # .replace(',', '，')
+                        card_dict[card_id] = [card_name[1:-1], description]
                     else:
-                        # attaches other raw card info in digit form to the card dict
+                        fields = values.split(',')
                         card_dict[fields[0]] += list(map(lambda x: int(x), fields[1:]))
         print('Total number of cards:', count)
         return card_dict

@@ -1,4 +1,6 @@
-# Some constants may be used in different scenarios.
+# -*- coding: utf-8 -*-
+
+""" Some constants may be used in different scenarios. """
 
 # card categories
 MONSTER = '怪兽'
