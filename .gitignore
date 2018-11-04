@@ -4,8 +4,11 @@ __pycache__/
 *.log
 *.pot
 
+# Mac
+.DS_Store
+
 # Data folder
-card_data/
+# card_data/
 source/
 resources/
 test.py
